@@ -1,0 +1,106 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+library(pafr)
+
+library(ggplot2)
+```
+
+# Dot plot with *Arabidopsis thaliana*
+
+```{r}
+ali <- read_paf("Ap_At.paf")
+
+prim_alignment <- filter_secondary_alignments(ali)
+# nrow(ali) - nrow(prim_alignment)
+
+long_ali <- subset(ali, alen > 1e4 & mapq > 40)
+# long_ali
+
+dotplot(prim_alignment, xlab = "A_petiolata", y = "A_thaliana", line_size = 2, alignment_colour = "blue", dashes = FALSE) + theme_bw()
+
+# dotplot(long_ali,  xlab = "A_petiolata", y = "A_thaliana", line_size = 2)+ theme_bw()
+
+# dotplot(ali,  xlab = "A_petiolata", y = "A_thaliana", line_size = 2)+ theme_bw()
+
+chr_1 <- dotplot(prim_alignment, xlab = "", y = "", alignment_colour = "blue", order_by = "provided", ordering = list(c("scaffold1|size485611451", "scaffold2|size121941980",  "scaffold3|size99661759","scaffold4|size80826050"), c("NC_003070.9"))) + theme_bw()
+
+chr_2 <- dotplot(prim_alignment, xlab = "", y = "", alignment_colour = "blue", order_by = "provided", ordering = list(c("scaffold1|size485611451", "scaffold2|size121941980", "scaffold3|size99661759","scaffold4|size80826050"), c("NC_003071.7"))) + theme_bw()
+
+chr_3 <- dotplot(prim_alignment, xlab = "", y = "", alignment_colour = "blue", order_by = "provided", ordering = list(c("scaffold1|size485611451", "scaffold2|size121941980",  "scaffold3|size99661759","scaffold4|size80826050"), c("NC_003074.8"))) + theme_bw()
+
+chr_4 <- dotplot(prim_alignment, xlab = "", y = "", alignment_colour = "blue", order_by = "provided", ordering = list(c("scaffold1|size485611451", "scaffold2|size121941980",  "scaffold3|size99661759","scaffold4|size80826050"), c("NC_003075.7"))) + theme_bw()
+
+chr_5 <- dotplot(prim_alignment, xlab = "A. petiolata", y = "", alignment_colour = "blue", order_by = "provided", ordering = list(c("scaffold1|size485611451", "scaffold2|size121941980",  "scaffold3|size99661759","scaffold4|size80826050"), c("NC_003076.8"))) + theme_bw()
+
+axis_fun <- function(by){
+  function(limits){
+    seq(0, limits[2], by)
+  }
+}
+
+
+chr_1 <- chr_1  + scale_y_continuous("", breaks = axis_fun(20000000), labels = Mb_lab) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm")) + ggtitle('Chr 1') + coord_fixed(ratio = 3)
+chr_2 <- chr_2 + scale_y_continuous("", breaks = axis_fun(20000000), labels = Mb_lab) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm")) +  ggtitle('Chr 2') + coord_fixed(ratio = 3)
+chr_3 <- chr_3 + scale_y_continuous("", breaks = axis_fun(20000000), labels = Mb_lab) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm")) +  ggtitle('Chr 3')  + coord_fixed(ratio = 3)
+chr_4 <- chr_4 + scale_y_continuous("", breaks = axis_fun(20000000), labels = Mb_lab) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm")) +  ggtitle('Chr 4')  + coord_fixed(ratio = 3)
+chr_5 <- chr_5 + scale_y_continuous("", breaks = axis_fun(20000000), labels = Mb_lab) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm")) +  ggtitle('Chr 5')  + coord_fixed(ratio = 3)
+ 
+
+pdf("A_thaliana_chrom_dotplot_3x.pdf")
+
+library(patchwork)
+chr_1 / chr_2 / chr_3 / chr_4 / chr_5
+# cowplot::plot_grid(chr_1, chr_2, chr_3, chr_4, chr_5, nrow = 5)
+
+dev.off()
+
+```
+
+
+# Dot plot with *Aethionema arabicum*
+
+```{r}
+ali <- read_paf("Ap_Aa.paf")
+
+prim_alignment <- filter_secondary_alignments(ali)
+
+
+long_ali <- subset(ali, alen > 1e4 & mapq > 40)
+
+dotplot(prim_alignment, xlab = "A_petiolata", y = "A_arabicum", line_size = 2, alignment_colour = "blue", dashes = FALSE) + theme_bw()
+
+
+```
+
+# Dot plot with *Brassica rapa*
+
+```{r}
+ali <- read_paf("Ap_Br.paf")
+
+prim_alignment <- filter_secondary_alignments(ali)
+
+
+long_ali <- subset(ali, alen > 1e4 & mapq > 40)
+
+dotplot(prim_alignment, xlab = "A_petiolata", y = "B_rapa", line_size = 2, alignment_colour = "blue", dashes = FALSE) + theme_bw()
+
+```
+
+# Dot plot with *Thlapsi arvense*
+
+```{r}
+ali <- read_paf("Ap_Ta.paf")
+
+prim_alignment <- filter_secondary_alignments(ali)
+
+
+long_ali <- subset(ali, alen > 1e4 & mapq > 40)
+
+
+dotplot(prim_alignment, xlab = "A_petiolata", y = "T_arvense", line_size = 2, alignment_colour = "blue", dashes = FALSE) + theme_bw()
+```
+

@@ -1,0 +1,120 @@
+import os as os 
+import pandas as pandas
+
+rule all:
+    input:
+        "uniprot_sprot.fasta",
+        "uniprot_sprot.fasta.pdb",
+        "outputs/maker2uni.blastp",
+        "outputs/contig-dpp-500-500_functional_blast.gff",
+        "outputs/AP_all_proteins.fasta.tsv",
+        "outputs/blast_go.gff",
+        "outputs/filtered_annotation.gff",
+        "outputs/genes_only.gff",
+        "info/chrom_names.txt"
+
+rule download_uni:
+    output:"uniprot_sprot.fasta"
+    shell:
+        """
+        wget ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+        gunzip {output}.gz
+        """
+
+rule make_blast_db:
+    input:
+        fasta="uniprot_sprot.fasta",
+    output:"uniprot_sprot.fasta.pdb"
+    shell:
+        """
+        module load gcc/7.3.0
+        module load blast+/2.10.1
+        makeblastdb -in {input.fasta} -input_type fasta -dbtype prot
+        """
+
+rule blast:
+    input:
+        fasta="uniprot_sprot.fasta",
+        protein="info/AP_all_proteins.fasta"
+    output: "outputs/maker2uni.blastp"
+    threads: 4
+    shell:
+        """
+        module load gcc/7.3.0
+        module load blast+/2.10.1
+
+        blastp -db {input.fasta} -query {input.protein} -out {output} \
+        -evalue .000001 -outfmt 6 -num_alignments 1 -seg yes -soft_masking true \
+        -lcase_masking -max_hsps 1 -num_threads {threads}
+        """
+
+
+localrules: integrate_gff
+
+rule integrate_gff:
+    input:
+        uniprot="uniprot_sprot.fasta",
+        blast_results="outputs/maker2uni.blastp",
+        gff="info/genome_nf.all.RAW.gff"
+    output:"outputs/contig-dpp-500-500_functional_blast.gff"
+    shell:
+        """
+        module load gcc/7.3.0
+        module load openmpi/3.1.4
+        module load maker/2.31.9
+        maker_functional_gff {input.uniprot} {input.blast_results} {input.gff} > {output}
+
+        """
+
+rule prot_domains:
+    input:
+        protein="info/AP_all_proteins.fasta"
+    output: "outputs/AP_all_proteins.fasta.tsv"
+    threads: 8
+    shell:
+        """
+        module load interproscan/5.40-77.0
+        interproscan.sh -appl PfamA -iprlookup -goterms -f tsv -i {input.protein} -d outputs -T $SLURM_TMPDIR
+        """
+
+rule combine_ipr:
+    input:
+        gff="outputs/contig-dpp-500-500_functional_blast.gff",
+        ipr_scan="outputs/AP_all_proteins.fasta.tsv"
+    output: "outputs/blast_go.gff"
+    shell:
+        """
+        module load gcc/7.3.0
+        module load openmpi/3.1.4
+        module load maker/2.31.9
+        ipr_update_gff {input.gff} {input.ipr_scan} > {output}
+        """
+
+rule qual_filter_gff:
+    input: "outputs/blast_go.gff"
+    output: "outputs/filtered_annotation.gff"
+    shell:
+        """
+        module load gcc/7.3.0
+        module load openmpi/3.1.4
+        module load maker/2.31.9
+        perl scripts/quality_filter.pl -s {input} > {output}
+        """
+
+
+rule reduce_gff:
+    input: "outputs/filtered_annotation.gff"
+    output: "outputs/genes_only.gff"
+    shell:
+        """
+        grep "Note" {input} > {output}
+        """
+
+rule chrom_seqinfo:
+    input: "info/ApGenomeRedun4.fasta"
+    output: "info/chrom_names.txt"
+    shell:
+        """
+        grep ">" {input} > {output}
+        """
+

@@ -1,0 +1,7 @@
+busco -i ApGenomeRedun4.fasta -l embryophyta_odb10 -o Ap_4 -m geno --limit 9
+busco -i ApGenomeRedun3.fasta -l embryophyta_odb10 -o Ap_3 -m geno --limit 9
+busco -i ApGenomeRedun2.fasta -l embryophyta_odb10 -o Ap_2 -m geno --limit 9
+busco -i ApGenomeRedun1.fasta -l embryophyta_odb10 -o Ap_1 -m geno --limit 9
+busco -i ApGenomeAllpaths1.2.fasta -l embryophyta_odb10 -o Ap_0 -m geno --limit 9
+busco -i Trinity.fasta -l embryophyta_odb10 -o transcriptome -m tran --limit 9
+

@@ -1,0 +1,10 @@
+module load StdEnv/2020
+module load minimap2/2.17
+
+minimap2 -t 4 -cx asm20 --cs GCF_000001735.4_TAIR10.1_genomic.fna.gz ApGenomeRedun4.fasta > Ap_At.paf
+
+minimap2 -t 4 -cx asm20 --cs GCA_000411095.1_VEGI_AA_v_1.0_genomic.fna.gz ApGenomeRedun4.fasta > Ap_Aa.paf
+
+minimap2 -t 4 -cx asm20 --cs GCA_000956625.1_T_arvense_v1_genomic.fna.gz ApGenomeRedun4.fasta > Ap_Ta.paf
+
+minimap2 -t 4 -cx asm20 --cs GCF_000309985.2_CAAS_Brap_v3.01_genomic.fna.gz ApGenomeRedun4.fasta > Ap_Br.paf
